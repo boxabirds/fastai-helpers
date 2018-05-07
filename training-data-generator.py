@@ -61,7 +61,7 @@ def prepare_training_data_directories(dest_dir):
     for dir in search_term_dirs:
         ensure_dir_exists( dest_dir, VALID_DIR_NAME, dir )
 
-# redistribute images between test and train
+# redistribute images between valid and train
 def redistribute_images(dest_dir,search_terms,valid_pct):
 
     # split search terms with commas or commas and whitespace
