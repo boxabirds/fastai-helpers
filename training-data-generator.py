@@ -79,11 +79,12 @@ def redistribute_images(dest_dir,search_terms,valid_pct):
         #print( f'validation set size: {validation_set_size}' )
         if( validation_set_size < 1 ):
             print( "please increase your validation percentage, with only %s files that percentages is less than one file... skipping" % num_files )
+        # we have enough validation files so we can choose some at random and put them in the right dir
         else:
             validation_set_size = int(validation_set_size)
-            validation_files = random.choices(population=files,k=validation_set_size)
+            random.shuffle( files )
             #print( f'Randomly chosen validation files: {validation_files}' )
-            for validation_file in validation_files:
+            for validation_file in files[:validation_set_size]:
                 src_path = os.path.join( dest_dir, search_term_dir, validation_file )
                 #print( f'source: "{src_path}"' );
                 dest_path = os.path.join( dest_dir, VALID_DIR_NAME, search_term_dir, validation_file )
