@@ -34,8 +34,11 @@ def remove_unreadable_images(dest_dir):
     # TODO incorporate this patch into googleimagedownloader -- avoids iterating over directory multiple times
     # ref: https://github.com/hardikvasa/google-images-download/issues/81
     for search_term_dir in os.listdir(dest_dir):
-        for imagename in os.listdir(search_term_dir):
-            imagepath = os.path.join(search_term_dir,imagename)
+        search_term_path = os.path.join( dest_dir, search_term_dir )
+        print( f"search_term_path: {search_term_path}" )
+        for imagename in os.listdir(search_term_path):
+            imagepath = os.path.join(search_term_path,imagename)
+            print( f"imagepath: {imagepath}" )
             try:
                 im = Image.open(imagepath)
                 im.close()
