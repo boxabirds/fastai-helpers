@@ -2,7 +2,7 @@
 
 #fast.ai batch Google image downloader helper
 #for the 2018 Lesson 1 that requires test images to be in test/ and train/directories
-# execution example:
+# execution example: -- note that this version cannot deal with trailing spaces with commas currently
 # training-data-generator vespas "vespa gtv,vespa gts,vespa primavera,vespa sprint,vespa 946"
 import sys
 import shutil
@@ -12,6 +12,8 @@ import pip
 import re
 import argparse
 from google_images_download import google_images_download
+from PIL import Image
+
 
 VALID_DIR_NAME = "valid"
 TRAIN_DIR_NAME = "train"
@@ -26,6 +28,22 @@ parser.add_argument("-v",action="store",dest="valid_pct",type=int, default=20,he
 def install_and_import(package):
     pass
 
+
+def remove_unreadable_images(dest_dir):
+    # googleimagedownloader doesn't check that the images actually are valid so we do this. 
+    # TODO incorporate this patch into googleimagedownloader -- avoids iterating over directory multiple times
+    # ref: https://github.com/hardikvasa/google-images-download/issues/81
+    for search_term_dir in os.listdir(dest_dir):
+        for imagename in os.listdir(search_term_dir):
+            imagepath = os.path.join(search_term_dir,imagename)
+            try:
+                im = Image.open(imagepath)
+                im.close()
+            except:
+                print(f'Image "{imagepath}" cannot be identified as an image, deleting')
+                os.remove(imagepath)
+
+
 def download_test_images(dest_dir,search_terms,quantity_per_term):
     response = google_images_download.googleimagesdownload()
     arguments = {
@@ -38,6 +56,7 @@ def download_test_images(dest_dir,search_terms,quantity_per_term):
     # get the downloader to download up 100 images inside a folder called <dest_dir>/<search term>
     # one for each search term e.g. "downloads/vespa gtv"
     response.download(arguments)
+    remove_unreadable_images(dest_dir)
 
 
 def get_options():
