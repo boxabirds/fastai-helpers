@@ -24,13 +24,14 @@ parser.add_argument('-d',action="store",dest="dest_dir",default="test-data",help
 parser.add_argument('-s',action="store",dest="search_terms",default="cats,dogs",help="comma-separated list of terms to search for")
 parser.add_argument("-q",action="store",dest="quantity_per_term",type=int,default=100,help="how many images to get for each search term (max 100)")
 parser.add_argument("-v",action="store",dest="valid_pct",type=int, default=20,help="how much of the data to set aside for validation set (percentage, e.g. '20')")
+parser.add_argument("-c",action="store",dest="chromedriver",help="path to chromedriver executable")
 
 def install_and_import(package):
     pass
 
 
 def remove_unreadable_images(dest_dir):
-    # googleimagedownloader doesn't check that the images actually are valid so we do this. 
+    # googleimagedownloader doesn't check that the images actually are valid so we do this.
     # TODO incorporate this patch into googleimagedownloader -- avoids iterating over directory multiple times
     # ref: https://github.com/hardikvasa/google-images-download/issues/81
     for search_term_dir in os.listdir(dest_dir):
@@ -47,13 +48,14 @@ def remove_unreadable_images(dest_dir):
                 os.remove(imagepath)
 
 
-def download_test_images(dest_dir,search_terms,quantity_per_term):
+def download_test_images(dest_dir,search_terms,quantity_per_term,chromedriver):
     response = google_images_download.googleimagesdownload()
     arguments = {
         "keywords":search_terms,
         "limit":quantity_per_term,
         "type":"photo",
-        "output_directory":dest_dir
+        "output_directory":dest_dir,
+        "chromedriver":chromedriver
     }
 
     # get the downloader to download up 100 images inside a folder called <dest_dir>/<search term>
@@ -68,7 +70,8 @@ def get_options():
     print( "search terms: '%s'" % results.search_terms )
     print( "quantity per term: '%s'" % results.quantity_per_term )
     print( f'validation set percentage: {results.valid_pct}%' )
-    return results.dest_dir, results.search_terms, results.quantity_per_term, results.valid_pct
+    print( "chromedriver path: '%s'" % results.chromedriver )
+    return results.dest_dir, results.search_terms, results.quantity_per_term, results.valid_pct, results.chromedriver
 
 def ensure_dir_exists( dest_dir, sub_dir, file_name ):
     path = os.path.join( dest_dir, sub_dir, file_name )
@@ -121,11 +124,11 @@ def redistribute_images(dest_dir,search_terms,valid_pct):
 if __name__ == "__main__":
 
     # get all the command line options
-    dest_dir,search_terms,quantity_per_term,valid_pct = get_options()
+    dest_dir,search_terms,quantity_per_term,valid_pct,chromedriver = get_options()
 
-    # get the files, then create a structure 
+    # get the files, then create a structure
     # compatible with the Jupyter notebook in fast.ai's lesson 1
-    download_test_images(dest_dir,search_terms,quantity_per_term)
+    download_test_images(dest_dir,search_terms,quantity_per_term,chromedriver)
     prepare_training_data_directories(dest_dir)
     redistribute_images(dest_dir,search_terms,valid_pct)
 
